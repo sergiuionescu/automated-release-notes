@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Foodkit\ReleaseNote\Parser\Local;
+use Dotenv\Exception\InvalidPathException;
 
 class GenerateReleaseNoteCommand extends Command
 {
@@ -46,6 +47,14 @@ class GenerateReleaseNoteCommand extends Command
             $end      = $helper->ask($input, $output, $question);
         }
 
+        $dotenv = new \Dotenv\Dotenv(getcwd());
+        try {
+            $dotenv->load();
+        } catch (InvalidPathException $e) {
+            $output->writeln($e->getMessage(), OutputInterface::VERBOSITY_VERBOSE);
+            $output->writeln("Expecting option config", OutputInterface::VERBOSITY_VERBOSE);
+        }
+
         $config = $this->getConfig($input);
 
         /** @var IssueTrackerInterface $tracker */
@@ -60,8 +69,6 @@ class GenerateReleaseNoteCommand extends Command
 
     private function getConfig(InputInterface $input)
     {
-        $dotenv = new \Dotenv\Dotenv(getcwd());
-        $dotenv->load();
 
         $config = [
             'type'     => 'jira',
