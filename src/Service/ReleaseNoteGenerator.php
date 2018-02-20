@@ -8,8 +8,9 @@ use Foodkit\ReleaseNote\Parser\ParserInterface;
 class ReleaseNoteGenerator
 {
     const FORMAT_GITHUB = 'github';
-    const FORMAT_SLACK  = 'slack';
-    const FORMAT_JSON   = 'json';
+    const FORMAT_SLACK = 'slack';
+    const FORMAT_JSON = 'json';
+    const FORMAT_HTML = 'html';
 
     /** @var IssueTrackerInterface */
     protected $issueTracker;
@@ -19,8 +20,11 @@ class ReleaseNoteGenerator
     /** @var string */
     private $format;
 
-    public function __construct(IssueTrackerInterface $issueTracker, ParserInterface $parser, $format = self::FORMAT_GITHUB)
-    {
+    public function __construct(
+        IssueTrackerInterface $issueTracker,
+        ParserInterface $parser,
+        $format = self::FORMAT_GITHUB
+    ) {
         $this->issueTracker = $issueTracker;
         $this->parser = $parser;
         $this->format = $format;
@@ -98,13 +102,27 @@ class ReleaseNoteGenerator
 
                 $result = [
                     'data' => [
-                        'tag'      => $release,
-                        'issues'   => $items,
+                        'tag' => $release,
+                        'issues' => $items,
                         'markdown' => $this->format(self::FORMAT_GITHUB, $release, $items, $compareUrl),
                     ]
                 ];
 
                 return json_encode($result, JSON_PRETTY_PRINT);
+
+            case self::FORMAT_HTML:
+
+                $notes = "<h4>Release notes: $release</h4>";
+                $notes .= '<ul>';
+                foreach ($items as $item) {
+                    $notes .= "<li>[<a href='{$item['url']}'>{$item['key']}</a>] - {$item['summary']}</li>";
+                }
+                $notes .= '</ul>';
+                if (!empty($compareUrl)) {
+                    $notes .= "<a href='{$compareUrl}'><small>See release commits</small></a>";
+                }
+
+                return $notes;
         }
     }
 }
