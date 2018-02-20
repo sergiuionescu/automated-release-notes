@@ -112,14 +112,14 @@ class ReleaseNoteGenerator
 
             case self::FORMAT_HTML:
 
-                $notes = "<h4>Release notes: $release</h4>";
+                $notes = "<b>Release notes: $release</b></br>";
                 $notes .= '<ul>';
                 foreach ($items as $item) {
                     $notes .= "<li>[<a href='{$item['url']}'>{$item['key']}</a>] - {$item['summary']}</li>";
                 }
                 $notes .= '</ul>';
                 if (!empty($compareUrl)) {
-                    $notes .= "<a href='{$compareUrl}'><small>See release commits</small></a>";
+                    $notes .= "<a href='{$compareUrl}'>See release commits</a>";
                 }
 
                 return $notes;
